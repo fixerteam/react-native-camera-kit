@@ -1,40 +1,36 @@
 package com.rncamerakit
 
-import com.facebook.react.bridge.*
-import com.facebook.react.uimanager.UIManagerModule
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContextBaseJavaModule
+import com.google.mlkit.vision.barcode.Barcode
+
 
 class RNCameraKitModule(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
-    companion object {
-        // 0-indexed, rotates counter-clockwise
-        // Values map to CameraX's Surface.ROTATION_* constants
-        const val PORTRAIT = 0 // ⬆️
-        const val LANDSCAPE_LEFT = 1 // ⬅️
-        const val PORTRAIT_UPSIDE_DOWN = 2 // ⬇️
-        const val LANDSCAPE_RIGHT = 3 // ➡️
-    }
+  companion object {
+    @JvmStatic
+    val VALID_BARCODE_TYPES = mapOf(
+        "aztec" to Barcode.FORMAT_AZTEC,
+        "ean13" to Barcode.FORMAT_EAN_13,
+        "ean8" to Barcode.FORMAT_EAN_8,
+        "qr" to Barcode.FORMAT_QR_CODE,
+        "pdf417" to Barcode.FORMAT_PDF417,
+        "upc_e" to Barcode.FORMAT_UPC_E,
+        "datamatrix" to Barcode.FORMAT_DATA_MATRIX,
+        "code39" to Barcode.FORMAT_CODE_39,
+        "code93" to Barcode.FORMAT_CODE_93,
+        "itf14" to Barcode.FORMAT_ITF,
+        "codabar" to Barcode.FORMAT_CODABAR,
+        "code128" to Barcode.FORMAT_CODE_128,
+        "upc_a" to Barcode.FORMAT_UPC_A
+    )
 
-    override fun getName(): String {
-        return "RNCameraKitModule"
-    }
+    @JvmStatic
+    val BARCODE_TYPES_TO_NAME = VALID_BARCODE_TYPES.entries.map { it.value to it.key }.toMap()
+  }
 
-    override fun getConstants(): Map<String, Any> {
-        return hashMapOf(
-                "PORTRAIT" to PORTRAIT,
-                "PORTRAIT_UPSIDE_DOWN" to PORTRAIT_UPSIDE_DOWN,
-                "LANDSCAPE_LEFT" to LANDSCAPE_LEFT,
-                "LANDSCAPE_RIGHT" to LANDSCAPE_RIGHT
-        )
-    }
 
-    @ReactMethod
-    fun capture(options: ReadableMap, viewTag: Int, promise: Promise) {
-        // CameraManager does not allow us to return values
-        val context = reactContext
-        val uiManager = context.getNativeModule(UIManagerModule::class.java)
-        context.runOnUiQueueThread {
-            val view = uiManager.resolveView(viewTag) as CKCamera
-            view.capture(options.toHashMap(), promise)
-        }
-    }
+  override fun getName(): String {
+    return "RNCameraKitModule"
+  }
 }

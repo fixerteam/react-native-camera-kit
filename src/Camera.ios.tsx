@@ -1,5 +1,5 @@
-import * as _ from 'lodash';
 import React from 'react';
+import * as _ from 'lodash';
 import { requireNativeComponent, NativeModules, processColor } from 'react-native';
 
 const { CKCameraManager } = NativeModules;
@@ -9,9 +9,6 @@ function Camera(props, ref) {
   const nativeRef = React.useRef();
 
   React.useImperativeHandle(ref, () => ({
-    capture: async () => {
-      return await CKCameraManager.capture({});
-    },
     requestDeviceCameraAuthorization: async () => {
       return await CKCameraManager.checkDeviceCameraAuthorizationStatus();
     },
@@ -21,15 +18,16 @@ function Camera(props, ref) {
   }));
 
   const transformedProps = _.cloneDeep(props);
-  _.update(transformedProps, 'cameraOptions.ratioOverlayColor', (c) => processColor(c));
+  _.update(transformedProps, 'frameColor', (c) => processColor(c));
+  _.update(transformedProps, 'laserColor', (c) => processColor(c));
 
-  return <NativeCamera style={{ minWidth: 100, minHeight: 100 }} ref={nativeRef} {...transformedProps} />;
+  return <NativeCamera ref={nativeRef} {...transformedProps} />;
 }
 
 Camera.defaultProps = {
   resetFocusTimeout: 0,
   resetFocusWhenMotionDetected: true,
-  saveToCameraRoll: true,
+  saveToCameraRoll: false,
 };
 
 export default React.forwardRef(Camera);

@@ -1,89 +1,49 @@
-import React, { Component } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, View, PermissionsAndroid } from 'react-native';
+import { CameraScreen } from '../../src';
+import { BarCodeScannedCallback, BarCodeType } from '../../src/CameraScreen';
 
-import CameraScreenExample from './CameraScreenExample';
-import BarcodeScreenExample from './BarcodeScreenExample';
-import CameraExample from './CameraExample';
+const askCameraPermission = async () => {
+  const status = await PermissionsAndroid.request('android.permission.CAMERA');
+  return status === 'granted';
+};
 
-export default class App extends Component {
+const App = () => {
+  const [barcodeType, setBarcodeType] = useState('');
+  const [barcodeValue, setBarcodeValue] = useState('');
+  const [isPermissionGranted, setIsPermissionGranted] = useState(false);
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      example: undefined,
-    };
-  }
+  const handleBarcodeRead: BarCodeScannedCallback = ({ type, data }) => {
+    setBarcodeType(type);
+    setBarcodeValue(data);
+  };
 
-  render() {
-    if (this.state.example) {
-      const Example = this.state.example;
-      return <Example />;
-    }
-    return (
-      <View style={{ flex: 1 }}>
-        <View style={styles.headerContainer}>
-          <Text style={{ fontSize: 60 }}>🎈</Text>
-          <Text style={styles.headerText}>
-            React Native Camera Kit
-          </Text>
-        </View>
-        <View style={styles.container}>
-          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraExample })}>
-            <Text style={styles.buttonText}>
-              Camera
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: CameraScreenExample })}>
-            <Text style={styles.buttonText}>
-              Camera Screen
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => this.setState({ example: BarcodeScreenExample })}>
-            <Text style={styles.buttonText}>
-              Barcode Scanner
-            </Text>
-          </TouchableOpacity>
-        </View>
+  useEffect(() => {
+    askCameraPermission().then(setIsPermissionGranted);
+  }, []);
+
+  const result = `${barcodeType} ${barcodeValue}`;
+
+  return isPermissionGranted ? (
+    <>
+      <CameraScreen
+        showFrame
+        laserColor='red'
+        frameColor='white'
+        onReadCode={handleBarcodeRead}
+        barCodeTypes={[BarCodeType.qr, BarCodeType.ean13, BarCodeType.ean8, BarCodeType.upc_a, BarCodeType.upc_e]}
+      />
+      <View style={{ alignItems: 'center', backgroundColor: 'white' }}>
+        <Text style={{ fontSize: 20, color: 'black' }}>{result}</Text>
       </View>
-    );
-  }
-}
+    </>
+  ) : (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
+      <Text style={{ fontSize: 20, color: 'black', textAlign: 'center' }}>
+        Требуется выдать разрешение для доступа к камере
+      </Text>
+    </View>
+  );
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 30,
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-    marginHorizontal: 24,
-  },
-  headerContainer: {
-    flexDirection: 'column',
-    backgroundColor: '#F5FCFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 100,
-  },
-  headerText: {
-    color: 'black',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  button: {
-    height: 60,
-    borderRadius: 30,
-    marginVertical: 12,
-    width: '100%',
-    backgroundColor: '#dddddd',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    textAlign: 'center',
-    fontSize: 20,
-  },
-});
+export default App;
