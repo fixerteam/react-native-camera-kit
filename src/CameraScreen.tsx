@@ -5,9 +5,9 @@ import Camera from './Camera';
 const { width, height } = Dimensions.get('window');
 
 export type Props = {
-  showFrame: any;
-  laserColor: any;
-  frameColor: any;
+  showFrame?: any;
+  laserColor?: any;
+  frameColor?: any;
   barCodeTypes: BarCodeType[];
   onReadCode: BarCodeScannedCallback;
 };
