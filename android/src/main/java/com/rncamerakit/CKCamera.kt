@@ -51,7 +51,7 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
   // Camera Props
   private var lensType = CameraSelector.LENS_FACING_BACK
   private var autoFocus = "on"
-  private var zoomMode = "on"
+  private var zoomMode = "off"
 
   // Barcode Props
   private var scanBarcode: Boolean = true
@@ -146,7 +146,10 @@ class CKCamera(context: ThemedReactContext) : FrameLayout(context), LifecycleObs
           val zoom = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: return true
           val scaleFactor = detector?.scaleFactor ?: return true
           val scale = zoom * scaleFactor
-          cameraControl.setZoomRatio(scale)
+          try {
+            // zoomRation 1.0 throws IllegalArgumentException
+            cameraControl.setZoomRatio(scale)
+          } catch (ignored: Exception) { }
           return true
         }
       })
