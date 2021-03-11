@@ -39,35 +39,12 @@ export type BarCodeScannedEvent = {
 
 export type BarCodeScannedCallback = (params: BarCodeScannerResult) => void;
 
-const EVENT_THROTTLE_MS = 500;
-
 export default class CameraScreen extends Component<Props> {
-  lastEvents: { [key: string]: any } = {};
-  lastEventsTimes: { [key: string]: any } = {};
-
-  onObjectDetected = (callback?: BarCodeScannedCallback) => ({ nativeEvent }: BarCodeScannedEvent) => {
-    const { type } = nativeEvent;
-    if (
-      this.lastEvents[type] &&
-      this.lastEventsTimes[type] &&
-      JSON.stringify(nativeEvent) === this.lastEvents[type] &&
-      Date.now() - this.lastEventsTimes[type] < EVENT_THROTTLE_MS
-    ) {
-      return;
-    }
-
-    if (callback) {
-      callback(nativeEvent);
-      this.lastEventsTimes[type] = new Date();
-      this.lastEvents[type] = JSON.stringify(nativeEvent);
-    }
-  };
-
   render() {
     const { onReadCode, ...restProps } = this.props;
     return (
       <View style={styles.cameraContainer}>
-        <Camera style={styles.camera} onReadCode={this.onObjectDetected(onReadCode)} {...restProps} />
+        <Camera style={styles.camera} onReadCode={onReadCode} {...restProps} />
       </View>
     );
   }
