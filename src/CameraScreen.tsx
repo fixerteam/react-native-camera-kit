@@ -40,11 +40,17 @@ export type BarCodeScannedEvent = {
 export type BarCodeScannedCallback = (params: BarCodeScannerResult) => void;
 
 export default class CameraScreen extends Component<Props> {
+  onObjectDetected = (callback?: BarCodeScannedCallback) => ({ nativeEvent }: BarCodeScannedEvent) => {
+    if (callback) {
+      callback(nativeEvent);
+    }
+  };
+
   render() {
     const { onReadCode, ...restProps } = this.props;
     return (
       <View style={styles.cameraContainer}>
-        <Camera style={styles.camera} onReadCode={onReadCode} {...restProps} />
+        <Camera style={styles.camera} onReadCode={this.onObjectDetected(onReadCode)} {...restProps} />
       </View>
     );
   }
